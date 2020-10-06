@@ -30,3 +30,184 @@ weather_df =
 weather_df
 ```
 
+## Create scatterplots
+
+```{r}
+ggplot(weather_df, aes(x = tmin, y = tmax)) + 
+  geom_point()
+```
+
+New approach, same plot. Could use this %>% argument scheme to add in other functions like mutate. 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point()
+```
+
+Save and edit a plot object. Can then later transform and print in other ways
+
+```{r}
+weather_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax))
+
+weather_plot + geom_point()
+```
+
+## Advanced scatterplot
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+What about the `aes` placement?
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name)) +
+  geom_smooth()
+```
+
+This color aesthetic only applies to scatterplot, so the geom_smooth doesn't differentiate by color. 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ name)
+```
+
+facet_grid: "." nothing defines rows "~ names" means names defines columns. Here's the other way around.
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_grid(name ~ .)
+```
+
+alpha in geom_point as transparency. 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = 0.2, size = 1) +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ name)
+```
+
+Size of point and transparency could be defined based on a variable.
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, alpha = tmin, color = name)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ name)
+```
+
+Combine some elements and try a new plot. 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_point(aes(size = prcp), alpha = 0.5) + 
+  geom_smooth(se = FALSE) + 
+  facet_grid(. ~ name)
+```
+
+## Some small notes
+
+How many geoms have to exist? Can use whatever geoms I want. Can go straight to geom_smooth if want. 
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_smooth(se = FALSE)
+```
+
+You can use a neat geom!
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_density2d() + 
+  geom_point(alpha = 0.3)
+```
+
+## Univariate plot
+
+Histogram - helpful to understand what's going on in dataset
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin)) + 
+  geom_histogram()
+```
+
+Can we add color. Overlayed distributions
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_histogram(position = "dodge")
+```
+
+Separate distribution
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) + 
+  geom_histogram() + 
+  facet_grid(. ~ name)
+```
+
+If want to compare distribution across levels (or location, categorical var), can do density plot, which is like histogram with smoothed edges.
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_density(alpha = 0.4)
+```
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, fill = name)) +
+  geom_density(alpha = 0.4, adjust = 0.5)
+```
+
+Boxplots! Can use categorical var on x axis, and then y var is the continuos var.
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin)) + 
+  geom_boxplot()
+```
+
+Trendy plots
+
+violin plots - cross between density plot and boxplot
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = name, y = tmin, fill = name)) +
+  geom_violin(alpha = 0.5) + 
+  stat_summary(fun = "median")
+```
+
+Ridge plots - density curve. Particularly good for categorical independent predictor variable with large number of values (like the 50 states) and visualizing categorical var on that.
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = name)) +
+  geom_density_ridges()
+```
+
+
