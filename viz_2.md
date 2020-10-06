@@ -436,3 +436,75 @@ weather_df %>%
     ## Warning: Removed 18 rows containing non-finite values (stat_density).
 
 ![](viz_2_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+## Revisit pups data
+
+``` r
+pups_data = 
+  read_csv("./data/FAS_pups.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(sex = recode(sex, `1` = "male", `2` = "female"))
+```
+
+    ## Parsed with column specification:
+    ## cols(
+    ##   `Litter Number` = col_character(),
+    ##   Sex = col_double(),
+    ##   `PD ears` = col_double(),
+    ##   `PD eyes` = col_double(),
+    ##   `PD pivot` = col_double(),
+    ##   `PD walk` = col_double()
+    ## )
+
+``` r
+litters_data = 
+  read_csv("./data/FAS_litters.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(group, into = c("dose", "day_of_tx"), sep = 3)
+```
+
+    ## Parsed with column specification:
+    ## cols(
+    ##   Group = col_character(),
+    ##   `Litter Number` = col_character(),
+    ##   `GD0 weight` = col_double(),
+    ##   `GD18 weight` = col_double(),
+    ##   `GD of Birth` = col_double(),
+    ##   `Pups born alive` = col_double(),
+    ##   `Pups dead @ birth` = col_double(),
+    ##   `Pups survive` = col_double()
+    ## )
+
+``` r
+fas_data = left_join(pups_data, litters_data, by = "litter_number")
+
+fas_data %>% 
+  ggplot(aes(x = dose, y = pd_ears)) + 
+  geom_violin() + 
+  facet_grid(. ~ day_of_tx)
+```
+
+    ## Warning: Removed 18 rows containing non-finite values (stat_ydensity).
+
+![](viz_2_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+Want to make plot on which shows the outcome of ears, eyes, pivot, and
+walk all together. This is again tidiness issue.
+
+``` r
+fas_data %>% 
+  select(dose, day_of_tx, starts_with("pd_")) %>% 
+  pivot_longer(
+    pd_ears:pd_walk,
+    names_to = "outcome",
+    values_to = "pn_day"
+  ) %>% 
+  drop_na() %>% 
+  mutate(outcome = forcats::fct_relevel(outcome, "pd_ears", "pd_pivot", "pd_walk", "pd_eyes")) %>% 
+  ggplot(aes(x = dose, y = pn_day)) + 
+  geom_violin() + 
+  facet_grid(day_of_tx ~ outcome) + 
+  theme_bw()
+```
+
+![](viz_2_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
