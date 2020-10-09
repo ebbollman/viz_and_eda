@@ -47,5 +47,57 @@ weather_df =
 weather_df
 ```
 
+## `group_by`
 
+Could group_by within a location value and set of month values 
+
+can also `ungroup()`
+
+```{r}
+weather_df %>% 
+  group_by(name, month)
+```
+
+## Counting things
+
+Count month / name observations
+
+```{r}
+weather_df %>% 
+  group_by(name) %>% 
+  summarize(n_obs = n())
+```
+
+```{r}
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(n_obs = n())
+```
+
+We can use `count()` as well
+
+```{r}
+weather_df %>% 
+  count(name, month, name = "n_obs")
+```
+
+**NEVER** use base R's `table`. Result is not a dataframe. Never pull variables out of dataframe.
+
+```{r eval = FALSE}
+weather_df %>% 
+  pull(month) %>% 
+  table()
+```
+
+Other helpful counters
+
+```{r}
+weather_df %>% 
+  group_by(month) %>% 
+  summarize(
+    n_obs = n(),
+    n_days = n_distinct(date))
+```
+
+In summarize, created 2 variables, number observations and number of distinct dates in that month.
 
