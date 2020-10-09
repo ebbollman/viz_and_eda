@@ -571,3 +571,7 @@ weather_df %>%
 
 This shows the mean and max 1-day temperature change for each location
 and standard.
+
+## Quick note
+
+Summarize only gets you so far.
