@@ -101,3 +101,37 @@ weather_df %>%
 
 In summarize, created 2 variables, number observations and number of distinct dates in that month.
 
+## A digression on 2x2 tables
+
+Define: name(Central Park and Waterhold) as exposure, and variable on whether that date is cold or not cold
+
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE      ~ ""
+    )
+  ) %>% 
+  group_by(name, cold) %>% 
+  summarize(count = n())
+```
+
+Quicker way to do this.
+
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE      ~ ""
+    )
+  ) %>% 
+  janitor::tabyl(name,cold)
+```
+
+
